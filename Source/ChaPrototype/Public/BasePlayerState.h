@@ -7,7 +7,7 @@
 #include "AbilitySystemInterface.h"
 #include "BasePlayerState.generated.h"
 
-class UAbilitySystemComponent;
+class UHeroAbilitySystemComponent;
 class UBaseAttributeSet;
 
 UCLASS()
@@ -27,7 +27,7 @@ public:
 protected:
 	// 어빌리티 시스템 컴포넌트(ASC)
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+	TObjectPtr<UHeroAbilitySystemComponent> AbilitySystemComponent;
 
 	// 어트리뷰트 셋
 	UPROPERTY()

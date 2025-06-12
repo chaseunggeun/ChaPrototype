@@ -10,23 +10,24 @@
 /**
  * 
  */
- class USpringArmComponent;
- class UCameraComponent;
- class UInputMappingContext;
- class UInputDataConfig;
- struct FInputActionValue;
- 
+class USpringArmComponent;
+class UCameraComponent;
+class UInputMappingContext;
+class UInputDataConfig;
+struct FInputActionValue;
+struct FHeroAbilityMapping;
+
 UCLASS()
 class CHAPROTOTYPE_API AHeroCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
+
 public:
 	AHeroCharacter();
 
 protected:
-	// 매 프레임 호출되는 함수. 마우스 방향으로 회전하는 로직을 여기에 넣습니다
 	virtual void Tick(float DeltaTime) override;
-	
+
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void PossessedBy(AController* NewController) override;
 
@@ -37,13 +38,20 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	TObjectPtr<UCameraComponent> Camera;
 
-	// -- 플레이어 전용 입력 설정 --
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	TObjectPtr<UInputMappingContext> DefaultMappingContext;
+	virtual void GrantDefaultAbilities() override;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-	TObjectPtr<UInputDataConfig> InputDataConfig;
+	// 에디터에서 기본 어빌리티와 입력 태그를 설정할 배열
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | Abilities")
+	TArray<FHeroAbilityMapping> DefaultMappedAbilities;
 
-	// -- 입력 처리 함수 --
-	void Move(const FInputActionValue& Value);
+#pragma region Inputs
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterData", meta = (AllowPrivateAccess = "true"))
+	UInputDataConfig* InputConfigDataAsset;
+
+	void Input_Move(const FInputActionValue& Value);
+
+	void Input_AbilityInputPressed(FGameplayTag InInputTag);
+	void Input_AbilityInputReleased(FGameplayTag InInputTag);
+
+#pragma endregion
 };

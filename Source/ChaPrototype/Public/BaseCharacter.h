@@ -42,5 +42,5 @@ protected:
 	void InitializeAttributes();
 
 	// 기본 어빌리티를 부여하는 헬퍼 함수
-	void GrantDefaultAbilities();
+	virtual void GrantDefaultAbilities();
 };

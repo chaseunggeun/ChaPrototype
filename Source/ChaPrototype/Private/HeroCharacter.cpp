@@ -7,7 +7,10 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "HeroInputComponent.h"
 #include "InputDataConfig.h"
+#include "MyGameplayTags.h"
+#include "HeroAbilitySystemComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 AHeroCharacter::AHeroCharacter()
@@ -45,28 +48,19 @@ void AHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// Enhanced Input Component로 캐스팅
-	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
-	{
-		// 입력 액션 바인딩
-		if (InputDataConfig)
-		{
-			EnhancedInputComponent->BindAction(InputDataConfig->MoveAction, ETriggerEvent::Triggered, this, &AHeroCharacter::Move);
-			EnhancedInputComponent->BindAction(InputDataConfig->JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
-			EnhancedInputComponent->BindAction(InputDataConfig->JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
-		}
+	checkf(InputConfigDataAsset, TEXT("에셋 할당 확인 ㄱㄱ")); // 입력 설정 데이터 에셋이 할당되었는지 확인.
 
-		// 이 캐릭터의 컨트롤러가 로컬 플레이어 컨트롤러인지 확인
-		if (APlayerController* PC = Cast<APlayerController>(GetController()))
-		{
-			// 로컬 플레이어의 Enhanced Input 서브시스템을 가져옴
-			if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
-			{
-				// 기본 매핑 컨텍스트를 추가
-				Subsystem->AddMappingContext(DefaultMappingContext, 0);
-			}
-		}
-	}
+	ULocalPlayer* LocalPlayer = GetController<APlayerController>()->GetLocalPlayer(); // 로컬 플레이어 가져옴.
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer); // Enhanced Input 서브시스템 가져옴.
+
+	check(Subsystem); // 서브시스템이 유효한지 확인.
+
+	Subsystem->AddMappingContext(InputConfigDataAsset->DefaultMappingContext, 0); // 기본 매핑 컨텍스트를 추가함.
+
+	UHeroInputComponent* HeroInputComp = CastChecked<UHeroInputComponent>(PlayerInputComponent);
+
+	HeroInputComp->BindNativeInputAction(InputConfigDataAsset, MyGameplayTags::InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move);
+	HeroInputComp->BindAbilityInputAction(InputConfigDataAsset, this, &ThisClass::Input_AbilityInputPressed, & ThisClass::Input_AbilityInputReleased);
 }
 
 void AHeroCharacter::PossessedBy(AController* NewController)
@@ -75,7 +69,18 @@ void AHeroCharacter::PossessedBy(AController* NewController)
 }
 
 
-void AHeroCharacter::Move(const FInputActionValue& Value)
+void AHeroCharacter::GrantDefaultAbilities()
+{
+	// 우리 커스텀 ASC를 가져옵니다
+	if (UHeroAbilitySystemComponent* HeroASC = Cast<UHeroAbilitySystemComponent>(GetAbilitySystemComponent()))
+	{
+		// 에디터에서 설정한 매핑 정보를 이용해 어빌리티를 부여합니다
+		TArray<FGameplayAbilitySpecHandle> TempHandles;
+		HeroASC->GrantHeroAbilities(DefaultMappedAbilities, 1, TempHandles);
+	}
+}
+
+void AHeroCharacter::Input_Move(const FInputActionValue& Value)
 {
 	const FVector2D MovementVector = Value.Get<FVector2D>();
 
@@ -87,5 +92,22 @@ void AHeroCharacter::Move(const FInputActionValue& Value)
 
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
+	}
+}
+
+void AHeroCharacter::Input_AbilityInputPressed(FGameplayTag InInputTag)
+{
+	// 커스텀 ASC로 캐스팅해서 함수를 호출합니다
+	if (UHeroAbilitySystemComponent* HeroASC = Cast<UHeroAbilitySystemComponent>(GetAbilitySystemComponent()))
+	{
+		HeroASC->OnAbilityInputPressed(InInputTag);
+	}
+}
+
+void AHeroCharacter::Input_AbilityInputReleased(FGameplayTag InInputTag)
+{
+	if (UHeroAbilitySystemComponent* HeroASC = Cast<UHeroAbilitySystemComponent>(GetAbilitySystemComponent()))
+	{
+		HeroASC->OnAbilityInputReleased(InInputTag);
 	}
 }

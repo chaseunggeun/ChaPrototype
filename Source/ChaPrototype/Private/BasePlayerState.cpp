@@ -4,13 +4,13 @@
 #include "BasePlayerState.h"
 #include "AbilitySystemComponent.h"
 #include "BaseAttributeSet.h"
-#include "ChaPrototype/Public/BaseCharacter.h"
+#include "HeroAbilitySystemComponent.h"
 
 
 ABasePlayerState::ABasePlayerState()
 {
 	// ASC 생성
-	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>("AbilitySystemComponent");
+	AbilitySystemComponent = CreateDefaultSubobject<UHeroAbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 

@@ -50,7 +50,13 @@ void UBaseAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, 
 void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
-
+	// Health 속성이 변경되었는지 확인합니다.
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	{
+		// **디버깅 로그 추가**
+		// UE_LOG는 에디터의 '출력 로그' 창에 메시지를 표시합니다.
+		UE_LOG(LogTemp, Warning, TEXT("Target Health Changed To: %f"), GetHealth());
+	}
 	UAbilitySystemComponent* TargetASC = GetOwningAbilitySystemComponent();
     
 	// 핵심 로직은 서버에서만 실행
