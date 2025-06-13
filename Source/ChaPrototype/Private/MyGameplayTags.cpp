@@ -12,4 +12,7 @@ namespace MyGameplayTags
 
 	
 	UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Attack_Basic, "Player.Ability.Attack.Basic")
+
+	
+	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_FireProjectile, "Event.Montage.FireProjectile")
 }

@@ -13,4 +13,7 @@ namespace MyGameplayTags
 	CHAPROTOTYPE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Attack_Basic);
 	
 	CHAPROTOTYPE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Ability_Attack_Basic);
+
+	
+	CHAPROTOTYPE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_FireProjectile);
 }

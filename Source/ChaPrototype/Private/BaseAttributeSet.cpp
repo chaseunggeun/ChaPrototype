@@ -28,14 +28,14 @@ void UBaseAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet, Health, COND_None, REPNOTIFY_Always);
 }
 
-// 체력 값이 최대 체력을 넘지 않도록 제한하는 로직
+// 전처리
 void UBaseAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeChange(Attribute, NewValue);
 
 	if (Attribute == GetHealthAttribute())
 	{
-		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
+		//NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
 	}
 	else if (Attribute == GetMovementSpeedAttribute())
 	{
@@ -64,6 +64,8 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	{
 		if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 		{
+			SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
+			
 			// 체력이 0 이하일 때의 로직
 			if (GetHealth() <= 0.0f)
 			{
